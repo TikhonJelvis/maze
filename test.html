@@ -7,8 +7,23 @@
 A maze
 </title>
 
+<script language="javascript" src="js/maze.js"></script>
+<script language="javascript">
+window.onload = function () {
+    var maze = new Maze(80, 80);
+    var context = document.getElementById("maze").getContext('2d');
+    var gradient = context.createLinearGradient(0, 0, 401, 401);
+    gradient.addColorStop(0, "#000044");
+    gradient.addColorStop(0.8, "#3366FF");
+
+    maze.draw("maze", 5, {wall : gradient, background : "#FFBB88"});
+};
+</script>
+
 </head>
 
 <body id="body">
+<canvas id="maze" width="401" height="401">
+</canvas>
 </body>
 </html>
