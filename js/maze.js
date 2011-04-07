@@ -3,8 +3,9 @@
  * of these cells.
  */
 function Maze(width, height) {
-    var cells = [];
-    var visited = 0; // The number of cells already visited.
+    var cells = [],
+        visited = 0, // The number of cells already visited.
+        solution = []; // The solution to the maze.
     
     for (var x = 0; x < width; x++) {
         cells[x] = [];
@@ -13,6 +14,39 @@ function Maze(width, height) {
         }
     }
 
+    /* Gets all of the cells we can possibly go to next. If the second argument
+     * is true, this takes walls into account when finding options, returning
+     * only the options with no walls between them and the cell.
+     */
+    function getOptions(cell, walls) {
+        var options = [];
+        
+        /* If the given coordinates are an option, pushes the corresponding 
+         * cell onto the options array.
+         */
+        function checkOption(x, y) {
+            if (walls) {
+                if ((y < cell.y && cell.walls.n) ||
+                    (x > cell.x && cell.walls.e) ||
+                    (y > cell.y && cell.walls.s) ||
+                    (x < cell.x && cell.walls.w)) {
+                    return;
+                }
+            }   
+                        
+            if (cells[x] && cells[x][y] && !cells[x][y].visited) {
+                options.push(cells[x][y]);
+            }
+        }
+
+        checkOption(cell.x, cell.y - 1);
+        checkOption(cell.x + 1, cell.y); 
+        checkOption(cell.x, cell.y + 1); 
+        checkOption(cell.x - 1, cell.y);
+
+        return options;
+    }
+    
     /* Visits each unvisited cell, starting with the given one, randomly
      * traveling to adjacent cells and knocking out the walls between them to
      * create the maze. The optional direction argument is the direction the
@@ -26,27 +60,8 @@ function Maze(width, height) {
         }
 
         //Get the possible options for going forward:
-        var options = [];
+        var options = getOptions(cell);
 
-        function getOptions() {
-            options = [];
-            
-            /* If the given coordinates are an option, pushes the corresponding 
-             * cell onto the options array.
-             */
-            function checkOption(x, y) {
-                if (cells[x] && cells[x][y] && !cells[x][y].visited) {
-                    options.push(cells[x][y]);
-                }
-            }
-
-            checkOption(cell.x, cell.y - 1);
-            checkOption(cell.x + 1, cell.y); 
-            checkOption(cell.x, cell.y + 1); 
-            checkOption(cell.x - 1, cell.y); 
-        }
-
-        getOptions();
         while (options.length > 0) {
             // The next cell is chosen randomly from the possible options
             var index = Math.floor(Math.random() * options.length);
@@ -66,14 +81,46 @@ function Maze(width, height) {
                 visit(nextCell, "e");
             }
 
-            getOptions();
+            options = getOptions(cell);
         }
     }
 
-    var startX = Math.floor(Math.random() * width);
-    var startY = Math.floor(Math.random() * height);
+    var startX = Math.floor(Math.random() * width),
+        startY = Math.floor(Math.random() * height);
     visit(cells[startX][startY]);
 
+    /* Returns an array of cells that are a path from the cell specified in the
+     * first two coordinates to the cell specified in the last two coordinates.
+     */
+    this.solve = function (startX, startY, endX, endY) {
+        // Mark all cells as unvisited:
+        for (var x = 0; x < cells.length; x++) {
+            for (var y = 0; y < cells[x].length; y++) {
+                cells[x][y].visited = false;
+            }
+        }
+
+        var solution = [],
+            cell = cells[startX][startY],
+            options = [];
+
+        while ((cell.x != endX) || (cell.y != endY)) {
+            cell.visited = true;
+            options = getOptions(cell, true);
+
+            if (options.length == 0) {
+                cell = solution.pop();
+            } else {
+                solution.push(cell);
+                cell = options[0];
+            }
+        }
+
+        solution.push(cell);
+
+        return solution;
+    };
+    
     /* A cell in the maze. This cell has some number of walls. */
     function Cell(x, y) {
         // The location of the cell:
@@ -98,7 +145,7 @@ function Maze(width, height) {
      * the background color, the start color and the end color. Each field
      * should be named for the first word of what it controls ("wall", "start"
      * and so on). These colors are actually styles, so they can be gradients or
-     * patterns as well, but this may not work perfectly.
+     * patterns as well.
      */
     this.draw = function (canvasId, step, colors) {
         var canvas = document.getElementById(canvasId);
@@ -120,23 +167,22 @@ function Maze(width, height) {
         context.fillStyle = colors.background;
         context.fillRect(0, 0, width * step + 1, height * step + 1);
 
-        // Fill in a start and end block:
-        context.fillStyle = colors.start;
-        context.fillRect(1, 1, step, step);
-        context.fillStyle = colors.end;
-        context.fillRect((width - 1) * step, (height - 1) * step, step, step);
-
         // Sets the right color:
         context.fillStyle = colors.wall;
 
-        var actualX = 0;
-        var actualY = 0;
-        var cell;
+        /* Returns the actual position of the cell in pixels. */
+        function actualPosition(cell) {
+            return [cell.x * step, cell.y * step];
+        }
+
+        var actualX = 0,
+            actualY = 0,
+            cell;
         for (var x = 0; x < cells.length; x++) {
             for (var y = 0; y < cells[x].length; y++) {
-                actualX = x * step;
-                actualY = y * step;
                 cell = cells[x][y];
+                actualX = actualPosition(cell)[0];
+                actualY = actualPosition(cell)[1];
 
                 if (cell.walls.n) {
                     context.fillRect(actualX, actualY, step, 1);
@@ -152,5 +198,43 @@ function Maze(width, height) {
                 }
             }
         }
+
+        // Fill in a start and end block:
+        context.fillStyle = colors.start;
+        context.fillRect(1, 1, step - 1, step - 1);
+        context.fillStyle = colors.end;
+        context.fillRect((width - 1) * step + 1, (height - 1) * step + 1,
+                         step - 1, step - 1);
+
+        
+
+        /* Draws the solution to the maze; does not draw the maze itself. The
+         * specified color can also be a gradient or a pattern.
+         */
+        this.drawSolution = function (canvasId, color) {
+            var canvas = document.getElementById(canvasId);
+            color = color || "#DDDD66";
+
+            try {
+	        var context = canvas.getContext('2d');
+            } catch (e) {
+	        // We can't do anything if canvas isn't supported...
+	        return;
+            }
+
+            // Now draw the solution:
+            var solution = this.solve(0, 0, width - 1, height - 1);
+            context.fillStyle = color;
+
+            // Get rid of the start and end cells, we don't want to draw those:
+            solution.pop();
+            solution.shift();
+            
+            for (var i = 0; i < solution.length; i++) {
+                var position = actualPosition(solution[i]);
+                context.fillRect(position[0] + 1, position[1] + 1, step - 1,
+                                 step - 1);
+            }
+        };
     };
 }
