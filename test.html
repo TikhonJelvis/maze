@@ -8,9 +8,17 @@ A maze
 </title>
 
 <script language="javascript" src="js/maze.js"></script>
+
+</head>
+
+<body id="body">
+<canvas id="maze" width="401" height="401">
+</canvas>
+
 <script language="javascript">
+var maze = new Maze(80, 80);
+
 window.onload = function () {
-    var maze = new Maze(80, 80);
     var context = document.getElementById("maze").getContext('2d');
     var gradient = context.createLinearGradient(0, 0, 401, 401);
     gradient.addColorStop(0, "#000044");
@@ -18,12 +26,11 @@ window.onload = function () {
 
     maze.draw("maze", 5, {wall : gradient, background : "#FFBB88"});
 };
+
+document.getElementById("maze").onclick = function () {
+    maze.drawSolution("maze");
+};
 </script>
 
-</head>
-
-<body id="body">
-<canvas id="maze" width="401" height="401">
-</canvas>
 </body>
 </html>
