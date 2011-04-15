@@ -7,30 +7,28 @@
 A maze
 </title>
 
+<link rel="stylesheet" type="text/css" href="css/maze.css" />
+
 <script language="javascript" src="js/maze.js"></script>
+<script language="javascript" src="js/mazeControls.js"></script>
 
 </head>
 
 <body id="body">
-<canvas id="maze" width="401" height="401">
-</canvas>
 
-<script language="javascript">
-var maze = new Maze(80, 80);
-
-window.onload = function () {
-    var context = document.getElementById("maze").getContext('2d');
-    var gradient = context.createLinearGradient(0, 0, 401, 401);
-    gradient.addColorStop(0, "#000044");
-    gradient.addColorStop(0.8, "#3366FF");
-
-    maze.draw("maze", 5, {wall : gradient, background : "#FFBB88"});
-};
-
-document.getElementById("maze").onclick = function () {
-    maze.drawSolution("maze");
-};
-</script>
+<div id="mazeHolder">
+<div id="controls">
+<div id="size" class="uibox">
+Size (in cells):
+<label for="width">Width:</label>
+<input id="width" class="number" type="text" value="80" maxlengthb="3"></input>
+<label for="height">Height:</label>
+<input id="height" class="number" type="text" value="80" maxlength="3"></input>
+<input type="button" class="controlButton" id="draw" value="draw"></input>
+<input type="button" class="controlButton" id="solve" value="solve"></input>
+</div>
+</div>
+</div>
 
 </body>
 </html>
