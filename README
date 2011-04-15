@@ -1,0 +1,8 @@
+This is just a simple little maze-generation algorithm which can draw
+and solve simple mazes using JavaScript. The test.html page is an
+example of drawing a maze--if you click the drawn maze, it will also
+draw its solution. 
+
+The stats.html presents the distribution of the lengths of the random
+mazes' solutions. These are generated each time, which takes a while
+and may cause browser warnings. 
