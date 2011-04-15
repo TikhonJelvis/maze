@@ -144,16 +144,18 @@ function Maze(width, height) {
         this.visited = false;
     }    
 
-    /* Draws the maze on the canvas with the given id. The step size determines 
-     * how tall each cell is. You can pass in an object to control various
-     * colors in the maze; this object can contain fields for the wall color,
-     * the background color, the start color and the end color. Each field
-     * should be named for the first word of what it controls ("wall", "start"
-     * and so on). These colors are actually styles, so they can be gradients or
-     * patterns as well.
+    /* Draws the maze on the given canvas (or canvas with the given id). The
+     * step size determines how tall each cell is. You can pass in an object to
+     * control various colors in the maze; this object can contain fields for
+     * the wall color, the background color, the start color and the end color.
+     * Each field should be named for the first word of what it controls
+     * ("wall", "start" and so on). These colors are actually styles, so they
+     * can be gradients or patterns as well.
      */
-    this.draw = function (canvasId, step, colors) {
-        var canvas = document.getElementById(canvasId);
+    this.draw = function (canvas, step, colors) {
+        if (typeof canvas == "string") {
+            canvas = document.getElementById(canvas);
+        }
         step = step || 10;
         colors = colors || {};
         colors.wall = colors.wall || "#3366FF";
@@ -216,8 +218,10 @@ function Maze(width, height) {
         /* Draws the solution to the maze; does not draw the maze itself. The
          * specified color can also be a gradient or a pattern.
          */
-        this.drawSolution = function (canvasId, color) {
-            var canvas = document.getElementById(canvasId);
+        this.drawSolution = function (canvas, color) {
+            if (typeof canvas == "string") {
+                canvas = document.getElementById(canvas);
+            }
             color = color || "#DDDD66";
 
             try {
