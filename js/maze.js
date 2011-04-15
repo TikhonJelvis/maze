@@ -93,6 +93,11 @@ function Maze(width, height) {
      * first two coordinates to the cell specified in the last two coordinates.
      */
     this.solve = function (startX, startY, endX, endY) {
+        startX = startX || 0;
+        startY = startY || 0;
+        endX = typeof endX == "undefined" ? width - 1 : endX;
+        endY = typeof endY == "undefined" ? height - 1 : endY;
+        
         // Mark all cells as unvisited:
         for (var x = 0; x < cells.length; x++) {
             for (var y = 0; y < cells[x].length; y++) {
