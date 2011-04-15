@@ -1,0 +1,28 @@
+/* CSS Document */
+
+#mazeHolder {
+    position : relative;
+    width : 100%;
+}
+
+#mazeHolder > canvas {
+    position : relative;
+}
+
+#controls {
+    width : 401px;
+}
+
+#controls input.number {
+    width : 3.1em;
+}
+
+.uibox {
+    display : float;
+    border : 1px solid #F63;
+    background-color : #FB8;
+}
+
+.controlButton {
+    float : right;
+}
